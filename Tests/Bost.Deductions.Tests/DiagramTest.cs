@@ -13,7 +13,7 @@ namespace Bost.Deductions.Tests
 			var memoryNetwork = semantic.BuildGraph();
 
 			MemoryMarshall memoryMarshall = new MemoryMarshall(memoryNetwork);
-			memoryMarshall.SetTargetState("bot", "Авторизован");
+			var test = memoryMarshall.SetTargetState("bot", "Авторизован");
 		}
 	}
 }

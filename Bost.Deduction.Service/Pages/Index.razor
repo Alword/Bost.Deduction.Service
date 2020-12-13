@@ -1,7 +1,86 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@using Bost.Deductions
+@using Bost.Deductions.Model
+@using Bost.Deduction.Service.Data
+@using Bost.Deduction.Service.ViewModel
+@inject WeatherForecastService ForecastService
 
-Welcome to your new app.
+<h1>Дедуктивный центр</h1>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<p>Проверка возможности достижения цели и установление приоритетов</p>
+
+<div class="form-group">
+    <label>Бот</label>
+    <input @bind="BotName" @bind:event="oninput" class="form-control" aria-describedby="emailHelp">
+    <small class="form-text text-muted">Группа ботов.</small>
+</div>
+<div class="form-group">
+    <label>Цель</label>
+    <input @bind="StateName" @bind:event="oninput" class="form-control">
+</div>
+<button @onclick="UpdateYearFromChild" class="btn btn-primary">Выполнить</button>
+
+<br />
+
+@if (actions == null)
+{
+    <p><em>Выберите цель</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Агенты</th>
+                <th>Этап</th>
+                <th>Статусы</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var action in actions)
+            {
+                <tr>
+                    <td>@action.Agent</td>
+                    <td>@action.StageName</td>
+                    <td>@action.StageStatus</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    public string BotName { get; set; }
+    public string StateName { get; set; }
+
+    private MemoryMarshall marshall;
+    private Stage[] actions;
+    protected override void OnInitialized()
+    {
+        SemanticFile semantic = new();
+        var memoryNetwork = semantic.BuildGraph();
+
+        marshall = new MemoryMarshall(memoryNetwork);
+    }
+
+    private async Task UpdateYearFromChild()
+    {
+        var parent = marshall.SetTargetState(BotName, StateName);
+
+        List<Stage> stages = new List<Stage>();
+
+        while (parent != null)
+        {
+            stages.Add(new Stage()
+            {
+                StageName = parent.ActionName,
+                StageStatus = string.Join(" ", parent.StatusChange),
+                Agent = string.Join(" ", parent.ActionAgents.Select(e => e.Value)),
+            });
+            parent = parent.Parent;
+        }
+        actions = stages.ToArray();
+    }
+}

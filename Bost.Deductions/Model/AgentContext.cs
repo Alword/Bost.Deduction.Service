@@ -15,8 +15,8 @@ namespace Bost.Deductions.Model
 		}
 		public int HasState(string stateName)
 		{
-			var count = _state.ContainsKey(stateName);
-			return _state[stateName];
+			var hasCount = _state.ContainsKey(stateName);
+			return hasCount ? _state[stateName] : 0;
 		}
 
 		public void AddState(string state, int count = 0)
