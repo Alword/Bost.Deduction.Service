@@ -1,3 +1,4 @@
+using Bost.Deductions.Model;
 using System;
 using Xunit;
 
@@ -9,7 +10,10 @@ namespace Bost.Deductions.Tests
 		public void DigramDownload_ShouldBeFine()
 		{
 			SemanticFile semantic = new();
-			var graph = semantic.BuildGraph();
+			var memoryNetwork = semantic.BuildGraph();
+
+			MemoryMarshall memoryMarshall = new MemoryMarshall(memoryNetwork);
+			memoryMarshall.SetTargetState("bot", "Авторизован");
 		}
 	}
 }

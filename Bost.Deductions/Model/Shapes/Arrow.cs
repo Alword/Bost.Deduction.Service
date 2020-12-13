@@ -33,9 +33,9 @@ namespace Bost.Deductions.Model.Shapes
 			};
 		}
 
-		public override void AddToNetwork(ShapeNetwork xmlNode)
+		public override void AddToNetwork(MemoryNetwork xmlNode)
 		{
-			xmlNode.TempArrows.Add(this);
+			xmlNode.TempRelations.Add(this);
 		}
 	}
 }

@@ -16,7 +16,7 @@ namespace Bost.Deductions.Model
 		public List<Shape> Incoming { get; set; }
 		public List<Shape> Outgoing { get; set; }
 		public abstract Shape? VlidateShape(XmlNode xmlNode);
-		public virtual void AddToNetwork(ShapeNetwork network)
+		public virtual void AddToNetwork(MemoryNetwork network)
 		{
 			if (Id == string.Empty) return;
 			network.Nodes.Add(Id, this);
@@ -48,7 +48,7 @@ namespace Bost.Deductions.Model
 			else
 			{
 				Id = xmlNode.Attributes["id"]?.Value ?? string.Empty;
-				Value = xmlNode.Attributes["value"]?.Value ?? string.Empty;
+				Value = xmlNode.Attributes["value"]?.Value.ToLower() ?? string.Empty;
 				Incoming = new List<Shape>();
 				Outgoing = new List<Shape>();
 			}

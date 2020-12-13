@@ -10,7 +10,12 @@ namespace Bost.Deductions.Model.Shapes
 {
 	public class Ellipse : Shape
 	{
+		private const int _colorLength = 7;
+		private const string _colorAttribute = "fillColor=";
+		private static readonly int _colorAttributeLength = _colorAttribute.Length;
+
 		public Colors Color { get; set; }
+		public bool IsActivation => Color == Colors.Green;
 		public Ellipse() { }
 		public Ellipse(Colors color, string id, string? value) : base(id, value)
 		{
@@ -35,22 +40,24 @@ namespace Bost.Deductions.Model.Shapes
 
 			if (colorStringIndex > -1)
 			{
-				colorString = style[colorStringIndex..(colorStringIndex + 7)];
+				var start = colorStringIndex + _colorAttributeLength;
+				var end = start + _colorLength;
+				colorString = style[start..end];
 			}
 
 			return new Ellipse(ColorsSwitch.FromRgb(colorString), xmlNode);
 		}
 
-		public override void AddToNetwork(ShapeNetwork network)
+		public override void AddToNetwork(MemoryNetwork network)
 		{
 			if (Value == string.Empty) return;
 
-			if (!network.Ellipses.ContainsKey(Value))
+			if (!network.States.ContainsKey(Value))
 			{
-				network.Ellipses.Add(Value, new HashSet<Ellipse>());
+				network.States.Add(Value, new HashSet<Ellipse>());
 			}
 
-			var cubes = network.Ellipses[Value];
+			var cubes = network.States[Value];
 			if (cubes.Contains(this)) return;
 			cubes.Add(this);
 			base.AddToNetwork(network);

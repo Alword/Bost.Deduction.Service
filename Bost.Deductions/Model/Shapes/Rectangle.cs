@@ -15,18 +15,18 @@ namespace Bost.Deductions.Model.Shapes
 		{
 			return new Rectangle(xmlNode);
 		}
-		public override void AddToNetwork(ShapeNetwork network)
+		public override void AddToNetwork(MemoryNetwork network)
 		{
 			if (Value == string.Empty) return;
 
 			HashSet<Rectangle>? cubes;
 
-			if (!network.Rectangles.ContainsKey(Value))
+			if (!network.Actions.ContainsKey(Value))
 			{
-				network.Rectangles.Add(Value, new HashSet<Rectangle>());
+				network.Actions.Add(Value, new HashSet<Rectangle>());
 			}
 
-			cubes = network.Rectangles[Value];
+			cubes = network.Actions[Value];
 			if (cubes.Contains(this)) return;
 			cubes.Add(this);
 			base.AddToNetwork(network);

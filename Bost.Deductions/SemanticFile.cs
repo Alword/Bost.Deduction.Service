@@ -9,13 +9,13 @@ namespace Bost.Deductions
 	public class SemanticFile
 	{
 		private static readonly string _path = "https://drive.google.com/u/0/uc?id=1dZbzbNHOM5lDBf0AvkC83qm8fp8C8_jq&export=download";
-		public ShapeNetwork BuildGraph(string pageMask = ".*")
+		public MemoryNetwork BuildGraph(string pageMask = ".*")
 		{
 			Regex regex = new Regex(pageMask);
 			using var xml = new WebClient();
 			var drawio = xml.DownloadString(_path);
 
-			ShapeNetwork shapeNetwork = new();
+			MemoryNetwork shapeNetwork = new();
 
 			XmlDocument xmlDocument = new XmlDocument();
 			xmlDocument.LoadXml(drawio);

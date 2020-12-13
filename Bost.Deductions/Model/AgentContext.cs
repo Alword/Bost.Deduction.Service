@@ -18,5 +18,20 @@ namespace Bost.Deductions.Model
 			var count = _state.ContainsKey(stateName);
 			return _state[stateName];
 		}
+
+		public void AddState(string state, int count = 0)
+		{
+			if (!_state.ContainsKey(state))
+			{
+				_state.Add(state, 0);
+			}
+		}
+		public void RemoveState(string state, int count = 0)
+		{
+			if (_state.ContainsKey(state))
+			{
+				_state.Remove(state);
+			}
+		}
 	}
 }

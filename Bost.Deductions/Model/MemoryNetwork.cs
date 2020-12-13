@@ -9,32 +9,32 @@ using System.Xml;
 
 namespace Bost.Deductions.Model
 {
-	public class ShapeNetwork
+	public class MemoryNetwork
 	{
 		public static readonly Shape[] Shapes = ShapeExtentions.LoadShapes();
 
 		/// <summary>Relations by name</summary>
-		public List<Arrow> TempArrows { get; set; }
+		public List<Arrow> TempRelations { get; set; }
 
 		/// <summary>Actions by name</summary>
-		public Dictionary<string, HashSet<Rectangle>> Rectangles { get; set; }
+		public Dictionary<string, HashSet<Rectangle>> Actions { get; set; }
 
 		/// <summary>Actors by name</summary>
-		public Dictionary<string, HashSet<Cube>> Cubes { get; set; }
+		public Dictionary<string, (AgentContext, HashSet<Cube>)> Agents { get; set; }
 
 		/// <summary>State by name</summary>
-		public Dictionary<string, HashSet<Ellipse>> Ellipses { get; set; }
+		public Dictionary<string, HashSet<Ellipse>> States { get; set; }
 
 		/// <summary>Id to Node</summary>
 		public Dictionary<string, Shape> Nodes { get; set; }
 
-		public ShapeNetwork()
+		public MemoryNetwork()
 		{
-			TempArrows = new List<Arrow>();
+			TempRelations = new List<Arrow>();
 			Nodes = new Dictionary<string, Shape>();
-			Cubes = new Dictionary<string, HashSet<Cube>>();
-			Ellipses = new Dictionary<string, HashSet<Ellipse>>();
-			Rectangles = new Dictionary<string, HashSet<Rectangle>>();
+			Agents = new Dictionary<string, (AgentContext, HashSet<Cube>)>();
+			States = new Dictionary<string, HashSet<Ellipse>>();
+			Actions = new Dictionary<string, HashSet<Rectangle>>();
 		}
 
 		public void AppendNetwork(string xmlPage)
@@ -50,7 +50,7 @@ namespace Bost.Deductions.Model
 				if (shapes == null) return;
 				AppendShapes(shapes);
 				LinkShapes();
-				TempArrows.Clear();
+				TempRelations.Clear();
 			}
 		}
 
@@ -70,7 +70,7 @@ namespace Bost.Deductions.Model
 
 		private void LinkShapes()
 		{
-			foreach (var arrow in TempArrows)
+			foreach (var arrow in TempRelations)
 			{
 				if (Nodes.ContainsKey(arrow.Source) && Nodes.ContainsKey(arrow.Target))
 				{
@@ -82,7 +82,7 @@ namespace Bost.Deductions.Model
 			}
 		}
 
-		public Shape? RecognizeShape(XmlNode shapeNode)
+		private Shape? RecognizeShape(XmlNode shapeNode)
 		{
 			foreach (var shape in Shapes)
 			{
