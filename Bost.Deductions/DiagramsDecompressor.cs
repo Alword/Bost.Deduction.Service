@@ -16,12 +16,8 @@ namespace Bost.Deductions
 		/// </summary>
 		/// <param name="drawio"></param>
 		/// <returns></returns>
-		public static string Decompress(ref string drawio)
+		public static string Decompress(string encoded)
 		{
-			XmlDocument xmlDocument = new XmlDocument();
-			xmlDocument.LoadXml(drawio);
-			var encoded = xmlDocument.InnerText;
-
 			var base64String = Convert.FromBase64String(encoded);
 			var algorithm = new DeflateCompressionAlgorithm();
 			var deflated = algorithm.Decompress(base64String);

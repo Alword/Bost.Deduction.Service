@@ -20,7 +20,7 @@ namespace Bost.Deductions.Tests
 			var compressed = xmlDocument.InnerText;
 
 			// act
-			var elem = DiagramsDecompressor.Decompress(ref compressed);
+			var elem = DiagramsDecompressor.Decompress(compressed);
 			// assert
 		}
 	}

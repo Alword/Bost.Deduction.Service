@@ -32,5 +32,10 @@ namespace Bost.Deductions.Model.Shapes
 				Target = target ?? string.Empty
 			};
 		}
+
+		public override void AddToNetwork(ShapeNetwork xmlNode)
+		{
+			xmlNode.TempArrows.Add(this);
+		}
 	}
 }

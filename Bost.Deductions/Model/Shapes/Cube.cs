@@ -21,5 +21,21 @@ namespace Bost.Deductions.Model.Shapes
 
 			return new Cube(xmlNode);
 		}
+
+		public override void AddToNetwork(ShapeNetwork network)
+		{
+			if (Value == string.Empty) return;
+
+			if (!network.Cubes.ContainsKey(Value))
+			{
+				network.Cubes.Add(Value, new HashSet<Cube>());
+			}
+			var cubes = network.Cubes[Value];
+			
+			if (cubes.Contains(this)) return;
+
+			cubes.Add(this);
+			base.AddToNetwork(network);
+		}
 	}
 }

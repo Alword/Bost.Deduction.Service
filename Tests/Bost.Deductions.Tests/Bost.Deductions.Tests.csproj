@@ -25,4 +25,8 @@
     <ProjectReference Include="..\..\Bost.Deductions\Bost.Deductions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Model\" />
+  </ItemGroup>
+
 </Project>

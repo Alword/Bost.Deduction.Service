@@ -40,5 +40,20 @@ namespace Bost.Deductions.Model.Shapes
 
 			return new Ellipse(ColorsSwitch.FromRgb(colorString), xmlNode);
 		}
+
+		public override void AddToNetwork(ShapeNetwork network)
+		{
+			if (Value == string.Empty) return;
+
+			if (!network.Ellipses.ContainsKey(Value))
+			{
+				network.Ellipses.Add(Value, new HashSet<Ellipse>());
+			}
+
+			var cubes = network.Ellipses[Value];
+			if (cubes.Contains(this)) return;
+			cubes.Add(this);
+			base.AddToNetwork(network);
+		}
 	}
 }

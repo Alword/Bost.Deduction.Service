@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Bost.Deductions.Tests
 {
-	public class DigramDownload
+	public class DiagramTest
 	{
 		[Fact]
 		public void DigramDownload_ShouldBeFine()

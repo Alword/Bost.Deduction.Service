@@ -1,22 +1,43 @@
 ﻿using Bost.Deductions.Model;
 using System;
 using System.Net;
+using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace Bost.Deductions
 {
 	public class SemanticFile
 	{
 		private static readonly string _path = "https://drive.google.com/u/0/uc?id=1dZbzbNHOM5lDBf0AvkC83qm8fp8C8_jq&export=download";
-		private string _xmlString;
-		public SemanticFile()
+		public ShapeNetwork BuildGraph(string pageMask = ".*")
 		{
-			var xml = new WebClient();
-			_xmlString = xml.DownloadString(_path);
-		}
-		public ShapeNetwork BuildGraph()
-		{
-			var xml = DiagramsDecompressor.Decompress(ref _xmlString);
-			return new ShapeNetwork(xml);
+			Regex regex = new Regex(pageMask);
+			using var xml = new WebClient();
+			var drawio = xml.DownloadString(_path);
+
+			ShapeNetwork shapeNetwork = new();
+
+			XmlDocument xmlDocument = new XmlDocument();
+			xmlDocument.LoadXml(drawio);
+			if (xmlDocument.DocumentElement == null) return shapeNetwork;
+
+			XmlNodeList? pages = xmlDocument.DocumentElement.SelectNodes("/mxfile/diagram");
+
+			if (pages == null) return shapeNetwork;
+
+			foreach (XmlNode pageXml in pages)
+			{
+				if (pageXml.Attributes == null) continue;
+
+				var name = pageXml.Attributes["name"]?.Value ?? string.Empty;
+
+				if (!regex.IsMatch(name)) continue;
+
+				var page = DiagramsDecompressor.Decompress(pageXml.InnerXml);
+				shapeNetwork.AppendNetwork(page);
+			}
+
+			return shapeNetwork;
 		}
 	}
 }

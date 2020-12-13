@@ -16,6 +16,11 @@ namespace Bost.Deductions.Model
 		public List<Shape> Incoming { get; set; }
 		public List<Shape> Outgoing { get; set; }
 		public abstract Shape? VlidateShape(XmlNode xmlNode);
+		public virtual void AddToNetwork(ShapeNetwork network)
+		{
+			if (Id == string.Empty) return;
+			network.Nodes.Add(Id, this);
+		}
 		public Shape()
 		{
 			Id = string.Empty;
@@ -54,13 +59,14 @@ namespace Bost.Deductions.Model
 			return Value;
 		}
 
-		public static Shape[] LoadShapes()
+		public override bool Equals(object? obj)
 		{
-			var shapes = typeof(Shape).Assembly.GetTypes().Where(e => e.BaseType == typeof(Shape)).ToArray();
-			var shapesArray = shapes.Select(e => Activator.CreateInstance(e) as Shape).ToArray();
-#pragma warning disable CS8619 // Допустимость значения NULL для ссылочных типов в значении не соответствует целевому типу.
-			return shapesArray ?? Array.Empty<Shape>(); ;
-#pragma warning restore CS8619 // Допустимость значения NULL для ссылочных типов в значении не соответствует целевому типу.
+			return obj is Shape shape && Id == shape.Id;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Id);
 		}
 	}
 }

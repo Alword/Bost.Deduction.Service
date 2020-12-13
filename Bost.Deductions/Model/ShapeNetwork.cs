@@ -1,4 +1,5 @@
-﻿using Bost.Deductions.Model.Shapes;
+﻿using Bost.Deductions.Extentions;
+using Bost.Deductions.Model.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,41 +11,66 @@ namespace Bost.Deductions.Model
 {
 	public class ShapeNetwork
 	{
-		public static readonly Shape[] Shapes = Shape.LoadShapes();
-		public List<Arrow> Arrows { get; set; }
-		public List<Rectangle> Rectangles { get; set; }
-		public List<Cube> Cubes { get; set; }
-		
-		/// <summary>State</summary>
-		public List<Ellipse> Ellipses { get; set; }
+		public static readonly Shape[] Shapes = ShapeExtentions.LoadShapes();
+
+		/// <summary>Relations by name</summary>
+		public List<Arrow> TempArrows { get; set; }
+
+		/// <summary>Actions by name</summary>
+		public Dictionary<string, HashSet<Rectangle>> Rectangles { get; set; }
+
+		/// <summary>Actors by name</summary>
+		public Dictionary<string, HashSet<Cube>> Cubes { get; set; }
+
+		/// <summary>State by name</summary>
+		public Dictionary<string, HashSet<Ellipse>> Ellipses { get; set; }
+
+		/// <summary>Id to Node</summary>
 		public Dictionary<string, Shape> Nodes { get; set; }
-		
-		
-		public ShapeNetwork(string xmlstring)
+
+		public ShapeNetwork()
 		{
-			Arrows = new List<Arrow>();
+			TempArrows = new List<Arrow>();
 			Nodes = new Dictionary<string, Shape>();
-			Cubes = new List<Cube>();
-			Ellipses = new List<Ellipse>();
-			Rectangles = new List<Rectangle>();
+			Cubes = new Dictionary<string, HashSet<Cube>>();
+			Ellipses = new Dictionary<string, HashSet<Ellipse>>();
+			Rectangles = new Dictionary<string, HashSet<Rectangle>>();
+		}
 
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(xmlstring);
+		public void AppendNetwork(string xmlPage)
+		{
+			lock (this)
+			{
+				XmlDocument doc = new XmlDocument();
+				doc.LoadXml(xmlPage);
 
-			if (doc.DocumentElement == null) return;
+				if (doc.DocumentElement == null) return;
 
-			XmlNodeList? shapes = doc.DocumentElement.SelectNodes("/mxGraphModel/root/mxCell");
-			if (shapes == null) return;
+				XmlNodeList? shapes = doc.DocumentElement.SelectNodes("/mxGraphModel/root/mxCell");
+				if (shapes == null) return;
+				AppendShapes(shapes);
+				LinkShapes();
+				TempArrows.Clear();
+			}
+		}
 
+		private void AppendShapes(XmlNodeList shapes)
+		{
 			foreach (XmlNode shapeNode in shapes)
 			{
 				if (shapeNode.Attributes == null) continue;
-				var shape = SwitchShape(shapeNode);
-				var addShape = SwitchShapeBehavior(shape);
-				addShape();
-			}
 
-			foreach (var arrow in Arrows)
+				var shape = RecognizeShape(shapeNode);
+
+				if (shape == null) continue;
+
+				shape.AddToNetwork(this);
+			}
+		}
+
+		private void LinkShapes()
+		{
+			foreach (var arrow in TempArrows)
 			{
 				if (Nodes.ContainsKey(arrow.Source) && Nodes.ContainsKey(arrow.Target))
 				{
@@ -54,30 +80,9 @@ namespace Bost.Deductions.Model
 					target.Incoming.Add(sourse);
 				}
 			}
-			Arrows.Clear();
 		}
 
-		public Action SwitchShapeBehavior(Shape? shape) => shape switch
-		{
-			Arrow s => () => AddArrow(s),
-			Ellipse s => () => AddEllipse(s),
-			Cube s => () => AddCube(s),
-			Rectangle s => () => AddRectangle(s),
-			_ => () => { }
-		};
-
-		public void AddArrow(Arrow arrow) { Arrows.Add(arrow); }
-		public void AddEllipse(Ellipse ellipse) { Ellipses.Add(ellipse); AddShape(ellipse); }
-		public void AddCube(Cube ellipse) { Cubes.Add(ellipse); AddShape(ellipse); }
-		public void AddRectangle(Rectangle ellipse) { Rectangles.Add(ellipse); AddShape(ellipse); }
-
-		public void AddShape(Shape shape)
-		{
-			if (shape.Id == string.Empty) return;
-			Nodes.Add(shape.Id, shape);
-		}
-
-		public static Shape? SwitchShape(XmlNode shapeNode)
+		public Shape? RecognizeShape(XmlNode shapeNode)
 		{
 			foreach (var shape in Shapes)
 			{
